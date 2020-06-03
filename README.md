@@ -5,7 +5,7 @@ Javascript code for a "bookmarklet" that facilitates easier entry into the Workd
 
 A bookmarklet is a short piece of Javascript code that replaces the URL of an ordinary bookmark.  After that, whenever the user clicks that bookmark the code is run.
 
-## What Does this Bookmarklet do When Clicked?
+## What Does This Bookmarklet Do?
 
 It fills in four fields in the Workday "Enter Time" dialog box (which you can open by clicking on a time blank on the "Enter My Time" page.  The values it fills can be customized, but the default bookmarklet sets fields for a Web Development Flex mentor.
 

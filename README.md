@@ -9,7 +9,10 @@ A bookmarklet is a short piece of Javascript code that replaces the URL of an or
 
 It fills in four fields in the Workday "Enter Time" dialog box (which you can open by clicking on a time blank on the "Enter My Time" page).  The values it fills can be customized, but the default bookmarklet sets fields for a Web Development Flex mentor.
 
-The four fields are "Time Type" (which will always be set to "Format"), and three customizable fields: "Format", "Discipline", and "Course Type:.
+The four fields are "Time Type" (which will always be set to "Format"), and three customizable fields: "Format", "Discipline", and "Course Type".
+
+![Image of Time Entry Dialog](https://github.com/machineghost/workday-time-entry-bookmarklet/blob/master/EnterTimeDialog.png?raw=true)
+
 
 ## Who is This Bookmarklet For?
 

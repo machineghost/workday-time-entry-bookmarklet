@@ -34,7 +34,7 @@ to instead be:
     
 (but you would leave the rest the same).  Once you have done that you simply need to:
 
-1. Create a new bookmark in your browser (eg. in Chrome click the three dots to open the menu, choose "Bookmarks" and then choose "Bookmark this Tab".
+1. Create a new bookmark in your browser (eg. in Chrome click the three dots to open the menu, choose "Bookmarks" and then choose "Bookmark this Tab").
 
 2. Edit the bookmark (eg. in Chrome click the three dots to open the menu, choose "Bookmarks", find your bookmark, right-click on it, and choose "Edit")
 

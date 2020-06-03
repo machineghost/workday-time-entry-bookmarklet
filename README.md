@@ -46,3 +46,7 @@ Please file an issue in this repository and/or message me in Chegg Slack.  I'll 
 ## The Bookmarklet Used to Work, Then Stopped
 
 This sort of code is heavily dependent on the specifics of Workday's HTML: if that HTML ever changes, it will break.  When that happens please let me know (again via GitHub issue and/or Slack) and I'll do my best to update it.
+
+## I'm a Dev and I'd Like to Edit and/or Improve This Bookmarklet
+
+You can find the original code for the bookmarklet, *not* formatted to be a bookmarklet, but instead as normal (multi-line/indented) Javascript code, in the index.js file in this repository.

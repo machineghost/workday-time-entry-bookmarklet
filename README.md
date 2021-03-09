@@ -1,6 +1,3 @@
-## workday-time-entry-bookmarklet
-Javascript code for a "bookmarklet" that facilitates easier entry into the Workday time management system.
-
 ## What's a Bookmarklet?
 
 A bookmarklet is a short piece of Javascript code that replaces the URL field of an ordinary browser bookmark.  Whenever the user clicks that bookmark,  its code is run.

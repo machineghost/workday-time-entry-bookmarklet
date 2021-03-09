@@ -3,52 +3,51 @@
 A bookmarklet is a short piece of Javascript code that replaces the URL field of an ordinary browser bookmark.  Whenever the user clicks that bookmark,  its code is run.
 
 ## What Does This Bookmarklet Do?
-
-It fills in four fields in the Workday "Enter Time" dialog box (which you can open by clicking on a time blank on the "Enter My Time" page).  The values it fills can be customized, but the default bookmarklet sets fields for a Web Development Flex mentor.
-
-The four fields are "Time Type" (which will always be set to "Format Time"), and three customizable fields: "Format", "Discipline", and "Course Type".
+It fills in four fields in the Workday "Enter Time" dialog box (on the "Enter My Time" page). First, it changes the "Time Type" to "Format", and then it sets three other fields: "Format", "Discipline", and "Course Type". When you create the bookmarklet you set the values for those fields, and you can create multiple bookmarklets for different types of time entries.
 
 ![Image of Time Entry Dialog](https://github.com/machineghost/workday-time-entry-bookmarklet/blob/master/EnterTimeDialog.png?raw=true)
 
-
 ## Who is This Bookmarklet For?
 
-Anyone who enters time through Workday and wants to save themselves some time.  You must be able to A) create a bookmark in your browser, B) edit that bookmark, and C) copy/paste code into the bookmark's URL/location field.  You **do not** need to be a Javascript programmer!
+Anyone who wants to enter time faster in Workday, and who can:
 
-## I'm Sold: How Do I Use the Bookmarklet?
+* create a bookmark in their browser
+* edit that bookmark (eg. by right-clicking on it)
+* copy/paste code into the bookmark's URL/location field.
+ 
+You **do not** need to be a Javascript programmer!
 
-First off, you will need to copy/paste the bookmarklet code, and set the values that you want it to fill in.  That code is:
+## How Do I Use the Bookmarklet?
+
+First copy/paste the bookmarklet code into any text editing program (eg. Notepad on Windows):
 
     javascript:(async () => {  const dropdownValues = [    ['Format', '1:1/Mentorship'],    ['Discipline', 'Web Dev'],    ['Course Type', 'Flex']  ];  const findInputByLabel = (label) =>    [...document.querySelectorAll('label')].filter(      (el) => el.innerText === label    )[0].parentNode.nextSibling.childNodes[0].childNodes[0].childNodes[0]      .childNodes[0].childNodes[0].childNodes[0].childNodes[0];  const findTagByTitle = (title) =>    document.querySelector(`[title="${title}"] div`);  const waitForElement = (selector) =>    new Promise((resolve, reject) => {      const findElement =        typeof selector === 'string'          ? () => document.querySelector(selector)          : selector;      const selectorString =        typeof selector === 'string' ? selector : 'function';      let attempts = 0;      const tryToGetElement = () => {        window.setTimeout(() => {          let element;          try {            element = findElement();          } catch (err) {}          attempts++;          if (element) return resolve(element);          if (attempts > 9)            reject(`Unable to find element with ${selectorString}`);          else tryToGetElement();        }, 500);      };      tryToGetElement();    });  const changeTypeToFormat = async () => {    /* Remove admin type */    findTagByTitle('Admin Time').click();    /* Click on the time type input (twice)*/    findInputByLabel('Time Type').click();    findInputByLabel('Time Type').click();    /* Wait for the "format" option, then click it */    const formatOption = await waitForElement(() =>      document.querySelector(        '[data-uxi-widget-type="multiselectlistitem"]' +          '[data-uxi-multiselectlistitem-index="1"]'      )    );    formatOption.click();  };  const changeDropdown = async (label, value) => {    const formatInput = await waitForElement(() => findInputByLabel(label));    formatInput.click();    const option = await waitForElement(      `[aria-label="Submenu ${label}"] [data-automation-label="${label}"]`    );    option.click();    console.log('clicked', option);    const mentorshipOption = await waitForElement(      `[data-automation-label="${value}"]`    );    mentorshipOption.click();  };  await changeTypeToFormat();  await changeDropdown(dropdownValues[0][0], dropdownValues[0][1]);  await changeDropdown(dropdownValues[1][0], dropdownValues[1][1]);  await changeDropdown(dropdownValues[2][0], dropdownValues[2][1]);})();
     
-If you are *not* a Web Development Flex mentor you will need to change the beginning of the script to set the three fields you desire.  For instance, if you wanted to create a bookmarklet for Office Hours time entry (also for Web Dev, but for any course type), this part of the script from:
+Next find this section, near the start:
+
+    ['Format', '1:1/Mentorship'],    ['Discipline', 'Web Dev'],    ['Course Type', 'Flex']
+    
+Replace "1:1/Mentorship" with your format, and do the same for "Discipline" and "Course Type".  You must use the exact same spelling as in Workday.
+
+For instance, to create a Web Development Office Hours time entry you would change:
 
     ['Format', '1:1/Mentorship'],    ['Discipline', 'Web Dev'],    ['Course Type', 'Flex']
    
-to instead be:
+to:
 
     ['Format', 'Office Hours'],    ['Discipline', 'Web Dev'],    ['Course Type', 'N/A']
     
-(but you would leave the rest the same).  Once you have done that you simply need to:
+.. but leave everything else the same. 
 
-1. Create a new bookmark in your browser (eg. in Chrome click the three dots to open the menu, choose "Bookmarks" and then choose "Bookmark this Tab").
+After that you just need to create and edit a bookmark in your browser, and then copy paste that code in your text editor into your bookmark's "URL" or "Location" field.
 
-2. Edit the bookmark (eg. in Chrome click the three dots to open the menu, choose "Bookmarks", find your bookmark, right-click on it, and choose "Edit")
+Save your bookmark and that's it (you might want to change it's name first though)!  You can now click that bookmark anytime you have the time entry dialog up in Workday, and it will fill in those values for you.
 
-3. Replace the URL in the "URL" field with the code for the bookmarklet
 
-4. Save your bookmark
+## I Followed the Above, but Something Didn't Work
 
-That's it!  Once you've done that, you can click that bookmark at any time while you have the time entry dialog open in Workday, and it will automatically fill in the selected fields for you.
-
-## I Followed the Above, and it Didn't Work
-
-Please file an issue in this repository and/or message me in Chegg Slack.  I'll do my best, but please understand this was a volunteer effort, not a paid service from Thinkful.
-
-## The Bookmarklet Used to Work, Then Stopped
-
-This sort of code is heavily dependent on the specifics of Workday's HTML: if that HTML ever changes, it will break.  When that happens please let me know (again via GitHub issue and/or Slack) and I'll do my best to update it.
+Please file an issue in this repository, and/or message me in Chegg Slack.  Do not contact Chegg (this bookmarklet is not an official Chegg project).
 
 ## I'm a Dev and I'd Like to Edit and/or Improve This Bookmarklet
 
-You can find the original code for the bookmarklet, *not* formatted to be a bookmarklet, but instead as normal (multi-line/indented) Javascript code, in the index.js file in this repository.
+You can find the original Javascript code for the bookmarklet (ie. multi-line and indented, *not* formatted as a bookmarklet), in the index.js file in this repository.

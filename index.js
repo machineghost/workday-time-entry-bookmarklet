@@ -2,30 +2,26 @@
 
 //javascript:
 (async () => {
-  /*const dropdownValues = [
-    ['Format', '1:1/Mentorship'],
-    ['Discipline', 'Web Dev'],
-    ['Course Type', 'Flex']
-  ];*/
-  const dropdownValues = [
-    ['Format', 'Group Sessions'],
-    ['Discipline', 'Web Dev'],
-    ['Course Type', 'N/A']
-  ];
+  const config = {
+    sessionLength: 40,
+    dropdownValues: [
+      ['Format', '1:1/Mentorship'],
+      ['Discipline', 'Web Dev'],
+      ['Course Type', 'Flex'],
+    ],
+  };
+  const { dropdownValues, sessionLength } = config;
   const findInputByLabel = (label) =>
     [...document.querySelectorAll('label')].filter(
       (el) => el.innerText === label
     )[0].parentNode.nextSibling.childNodes[0].childNodes[0].childNodes[0]
       .childNodes[0].childNodes[0].childNodes[0].childNodes[0];
 
-  const findTagByTitle = (title) =>
-    document.querySelector(`[title="${title}"] div`);
-
-  const waitForElement = (selector) =>
+  const waitForElement = (selector, index = 0) =>
     new Promise((resolve, reject) => {
       const findElement =
         typeof selector === 'string'
-          ? () => document.querySelector(selector)
+          ? () => document.querySelectorAll(selector)[index]
           : selector;
       const selectorString =
         typeof selector === 'string' ? selector : 'function';
@@ -47,21 +43,6 @@
       tryToGetElement();
     });
 
-  const changeTypeToFormat = async () => {
-    /* Remove admin type */
-    findTagByTitle('Admin Time').click();
-    /* Click on the time type input (twice)*/
-    findInputByLabel('Time Type').click();
-    findInputByLabel('Time Type').click();
-    /* Wait for the "format" option, then click it */
-    const formatOption = await waitForElement(() =>
-      document.querySelector(
-        '[data-uxi-widget-type="multiselectlistitem"]' +
-          '[data-uxi-multiselectlistitem-index="1"]'
-      )
-    );
-    formatOption.click();
-  };
   const changeDropdown = async (label, value) => {
     const formatInput = await waitForElement(() => findInputByLabel(label));
     formatInput.click();
@@ -69,15 +50,48 @@
       `[aria-label="Submenu ${label}"] [data-automation-label="${label}"]`
     );
     option.click();
-    console.log('clicked', option);
+
     const mentorshipOption = await waitForElement(
       `[data-automation-label="${value}"]`
     );
     mentorshipOption.click();
   };
 
-  await changeTypeToFormat();
+  const setEndTime = async () => {
+    const startTimeInput = await waitForElement('.gwt-TextBox.WFT2.WPT2');
+    startTimeInput.dispatchEvent(new Event('blur'));
+    const startTime = startTimeInput.value;
+    let [timePart, amPm] = startTime.split(' ');
+    const [hoursStr, minutesStr] = timePart.split(':');
+    const startHours = Number(hoursStr);
+    const startMinutes = Number(minutesStr);
+    let endHours = startHours;
+    let endMinutes = startMinutes + sessionLength;
+    if (endMinutes > 59) {
+      endMinutes -= 60;
+      endHours += 1;
+      if (endHours > 12) {
+        endHours -= 12;
+        if (startHours !== 12) {
+          amPm = amPm === 'AM' ? 'PM' : 'AM';
+        }
+      } else if (endHours === 12 && startHours !== 12) {
+        amPm = amPm === 'AM' ? 'PM' : 'AM';
+      }
+    }
+    if (!endMinutes) endMinutes = '00';
+    const endTimeInput = await waitForElement('.gwt-TextBox.WFT2.WPT2', 1);
+    endTimeInput.value = `${endHours}:${endMinutes} ${amPm}`;
+    endTimeInput.dispatchEvent(new Event('blur'));
+  };
+
+  await setEndTime();
   await changeDropdown(dropdownValues[0][0], dropdownValues[0][1]);
   await changeDropdown(dropdownValues[1][0], dropdownValues[1][1]);
   await changeDropdown(dropdownValues[2][0], dropdownValues[2][1]);
+  (
+    await waitForElement(
+      `[data-automation-id="wd-CommandButton"] span[title="OK"]`
+    )
+  ).click();
 })();

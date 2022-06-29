@@ -1,1 +1,149 @@
-<h1>Chegg Time Entry Bookmarklet</h1>
+<style>
+  h1 {
+    text-align: center;
+  }
+  #page {
+    max-width: 50em;
+    margin: 0 auto;
+  }
+  th {
+    text-align: left;
+  }
+  #code {
+    border: 1px dotted black;
+    font-family: courier;
+  }
+</style>
+
+<div id="page">
+  <h1>Chegg Time Entry Bookmarklet</h1>
+
+  <div style="text-align: center">
+    <video autoplay="true" loop="true" width="500">
+      <source src="./bookmarkletExample.mp4" type="video/mp4" />
+    </video>
+  </div>
+
+  <h2>What Is This?</h2>
+  <p>
+    Have you ever wished you didn't have to do so much clicking/typing when you
+    enter your time in Chegg's Workday site? If so, this page will let you
+    create a "bookmarklet" to speed things up, and save you from (most of) that
+    clicking/typing, by doing it for you when you click the bookmarklet.
+  </p>
+
+  <h2>What is a Bookmarklet?</h2>
+  <p>
+    A bookmarklet is a small script that is stored inside a bookmark on your
+    browser. You can generate one using this page, save it in a bookmark in your
+    browser, and then you can click that bookmark whenever you want to use it.
+  </p>
+
+  <h2>How Do I Make a Time Entry Bookmarklet?</h2>
+
+  <p>
+    Simply enter in the appointment's length of time, then type in the values
+    for the three time entry fields (Format, Discipline, and Course Type), and
+    hit the button to generate your bookmarklet.
+  </p>
+
+  <h2>How Do I Use My New Bookmarklet?</h2>
+  <ol>
+    <li>
+      First, create a bookmark (in your browser) to any page: it doesn't matter
+      which page.
+    </li>
+    <li>
+      Edit your bookmark (the details of this will vary by browser, but usually
+      you right-click on it and choose an option like "Edit").
+    </li>
+    <li>
+      Copy the generated bookmarklet code (below) and paste it into (ie.
+      replace) the bookmark's URL. Then save your bookmark.
+    </li>
+    <li>
+      You can now click on this bookmark at any time (while you have an open
+      time entry on the Chegg Workday site) to have it complete the fields for
+      you.
+    </li>
+  </ol>
+
+  <h2>What If I Still Have Questions/Issues?</h2>
+
+  <p>
+    Send a private message on Slack to Jeremy Walker. Please be aware that this
+    was a hobby project however, and it is not officially supported by Chegg.
+  </p>
+
+  <h2>Let's Make a Bookmarklet Already!</h2>
+  <p>
+    <strong>NOTE:</strong> These values must match the ones in Workday
+    <em>exactly</em>.
+  </p>
+  <form>
+    <table>
+      <tr>
+        <th>Appointment Length:</th>
+        <td><input id="time" placeholder="eg. 30" /> (in minutes)</td>
+      </tr>
+      <tr>
+        <th>Format:</th>
+        <td><input id="format" placeholder="eg. 1:1/Mentorship" /></td>
+      </tr>
+      <tr>
+        <th>Discipline:</th>
+        <td><input id="discipline" placeholder="eg. Web Dev" /></td>
+      </tr>
+      <tr>
+        <th>Course Type:</th>
+        <td><input id="courseType" placeholder="eg. Flex" /></td>
+      </tr>
+      <tr>
+        <td colspan="2" style="text-align: center">
+          <input type="submit" />
+        </td>
+      </tr>
+    </table>
+  </form>
+
+  <div id="result" style="display: none">
+    <h2>Bookmarklet Code</h2>
+    <pre id="code"></pre>
+  </div>
+</div>
+
+<script>
+  const templateStart = `javascript: (async () => {`;
+  const templateEnd = `const { dropdownValues, sessionLength } = config;   const findInputByLabel = (label) =>     [...document.querySelectorAll('label')].filter(       (el) => el.innerText === label     )[0].parentNode.nextSibling.childNodes[0].childNodes[0].childNodes[0]       .childNodes[0].childNodes[0].childNodes[0].childNodes[0];    const waitForElement = (selector, index = 0) =>     new Promise((resolve, reject) => {       const findElement =         typeof selector === 'string'           ? () => document.querySelectorAll(selector)[index]           : selector;       const selectorString =         typeof selector === 'string' ? selector : 'function';       let attempts = 0;       const tryToGetElement = () => {         window.setTimeout(() => {           let element;           try {             element = findElement();           } catch (err) {}           attempts++;           if (element) return resolve(element);            if (attempts > 9)             reject(\`Unable to find element with \${selectorString}\`);           else tryToGetElement();         }, 500);       };       tryToGetElement();     });    const changeDropdown = async (label, value) => {     const formatInput = await waitForElement(() => findInputByLabel(label));     formatInput.click();     const option = await waitForElement(       \`[aria-label="Submenu \${label}"] [data-automation-label="\${label}"]\`     );     option.click();      const mentorshipOption = await waitForElement(       \`[data-automation-label="\${value}"]\`     );     mentorshipOption.click();   };    const setEndTime = async () => {     const startTimeInput = await waitForElement('.gwt-TextBox.WFT2.WPT2');     startTimeInput.dispatchEvent(new Event('blur'));     const startTime = startTimeInput.value;     let [timePart, amPm] = startTime.split(' ');     const [hoursStr, minutesStr] = timePart.split(':');     const startHours = Number(hoursStr);     const startMinutes = Number(minutesStr);     let endHours = startHours;     let endMinutes = startMinutes + sessionLength;     if (endMinutes > 59) {       endMinutes -= 60;       endHours += 1;       if (endHours > 12) {         endHours -= 12;         if (startHours !== 12) {           amPm = amPm === 'AM' ? 'PM' : 'AM';         }       } else if (endHours === 12 && startHours !== 12) {         amPm = amPm === 'AM' ? 'PM' : 'AM';       }     }     if (!endMinutes) endMinutes = '00';     const endTimeInput = await waitForElement('.gwt-TextBox.WFT2.WPT2', 1);     endTimeInput.value = \`\${endHours}:\${endMinutes} \${amPm}\`;     endTimeInput.dispatchEvent(new Event('blur'));   };    await setEndTime();   await changeDropdown(dropdownValues[0][0], dropdownValues[0][1]);   await changeDropdown(dropdownValues[1][0], dropdownValues[1][1]);   await changeDropdown(dropdownValues[2][0], dropdownValues[2][1]);   (     await waitForElement(       \`[data-automation-id="wd-CommandButton"] span[title="OK"]\`     )   ).click(); })();`;
+
+  const buildConfig = (time, format, discipline, courseType) =>
+    `const config = { sessionLength: ${time}, dropdownValues: [ ['Format', '${format}'], ['Discipline', '${discipline}'], ['Course Type', '${courseType}'], ], };`;
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    const time = document.querySelector('#time').value;
+    if (!time) return alert('Please enter the appointment time, in minutes');
+
+    const format = document.querySelector('#format').value;
+    if (!format)
+      return alert('Please enter the appointment format (as seen in Workday)');
+
+    const discipline = document.querySelector('#discipline').value;
+    if (!discipline)
+      return alert(
+        'Please enter the appointment discipline (as seen in Workday)'
+      );
+
+    const courseType = document.querySelector('#courseType').value;
+    if (!courseType)
+      return alert('Please enter the course type (as seen in Workday)');
+
+    document.querySelector('#result').style.display = 'block';
+    document.querySelector('#code').innerText =
+      templateStart +
+      buildConfig(time, format, discipline, courseType) +
+      templateEnd;
+  };
+  document.querySelector('form').addEventListener('submit', submitHandler);
+</script>

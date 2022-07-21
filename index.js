@@ -58,7 +58,7 @@
   };
 
   const setEndTime = async () => {
-    const startTimeInput = await waitForElement('.gwt-TextBox.WFT2.WPT2');
+    const startTimeInput = await waitForElement('.gwt-TextBox');
     startTimeInput.dispatchEvent(new Event('blur'));
     const startTime = startTimeInput.value;
     let [timePart, amPm] = startTime.split(' ');
@@ -80,7 +80,7 @@
       }
     }
     if (!endMinutes) endMinutes = '00';
-    const endTimeInput = await waitForElement('.gwt-TextBox.WFT2.WPT2', 1);
+    const endTimeInput = await waitForElement('.gwt-TextBox', 1);
     endTimeInput.value = `${endHours}:${endMinutes} ${amPm}`;
     endTimeInput.dispatchEvent(new Event('blur'));
   };

@@ -7,6 +7,10 @@ It fills in four fields in the Workday "Enter Time" dialog box (on the "Enter My
 
 ![Image of Time Entry Dialog](https://github.com/machineghost/workday-time-entry-bookmarklet/blob/master/EnterTimeDialog.png?raw=true)
 
+## How do I Generate Bookmarklets
+
+Use this: https://machineghost.github.io/workday-time-entry-bookmarklet/
+
 ## Who is This Bookmarklet For?
 
 Anyone who wants to enter time faster in Workday, and who can:
